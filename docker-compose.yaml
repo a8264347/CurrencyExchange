@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./build/Dockerfile
+    restart: always
+    env_file:
+      - "./.env"
+    ports:
+      - "${SERVICE_PORT}:8000"
+    volumes:
+      - data:/var/www/html
+    environment:
+      SWOOLE_HTTP_PORT: ${SWOOLE_HTTP_PORT}
+      SWOOLE_HTTP_WORKER_NUM: ${SWOOLE_HTTP_WORKER_NUM}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: bash -c "php artisan swoole:http start"
+    networks:
+      - app
+volumes:
+  data:
+networks:
+  app:
